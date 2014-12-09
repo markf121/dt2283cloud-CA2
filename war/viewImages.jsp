@@ -28,12 +28,17 @@
 		
 	</head>
 	<body>
-		<h1>Welcome to FloopBox</h1>
+		
+		
+		<%
+			Iterator<BlobInfo> blobIterator = new BlobInfoFactory().queryBlobInfos();
+
+			while( blobIterator.hasNext()) { 
+				BlobKey bk = blobIterator.next().getBlobKey();
+				ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(bk);
+		%>		
+				<img src="<%= imageService.getServingUrl(options)%>">
+		<% }%>
 	
-		<ul>
-			<li><a href="upload.jsp">Upload to FloopBox</a></li>
-			<li><a href="viewImages.jsp">View Uploaded images</a></li>
-			<li><a href="login">Login</a></li>
-		</ul>
 	</body>
 </html>

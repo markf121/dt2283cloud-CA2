@@ -1,6 +1,9 @@
 package ie.mydit.flanagan6.mark;
 
+import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 
 
@@ -23,33 +28,43 @@ public class Upload extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 		
-		Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
-		List<BlobKey> blobKey = blobs.get("myFile");
-		System.out.println("1");
-		int i = blobs.size() - 1;
-		
-		
-		if (blobKey == null) {
-			System.out.println("null");
-			res.sendRedirect("/"); // if null return to page
+		Principal  myPrincipal = req.getUserPrincipal();
+
+		if(myPrincipal == null){
+			res.sendRedirect("/login");
 			
-		} else {
-			System.out.println("not null");
-			PersistenceManager pm = PMFactory.get().getPersistenceManager();//get Persitance manager instance
-			ImageBlob m = new ImageBlob(blobKey.get(i).getKeyString()); //create image  object
-			//BlobInfo binfo = new BlobInfo(blobKey.get(i)));
+		}
+		
+		if(myPrincipal != null) {
 			
-			try {
-				pm.makePersistent(m);//Add Image to the datastore
-				System.out.println("Made persistent");
-			} finally {
-				System.out.println("closing");
-				//pm.close();
+			Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
+			List<BlobKey> blobKey = blobs.get("myFile");
+			System.out.println("1");
+			int i = blobs.size() - 1;
+			
+			
+			if (blobKey == null) {
+				System.out.println("null");
+				res.sendRedirect("/"); // if null return to page
 				
-			}
-			//System.out.println("Uploaded a file with blobKey:" + blobKey.getKeyString());
-			System.out.println("Redirecting");
-			res.sendRedirect("index.jsp"); //Return to homepage
-		}//end if else
+			} else {
+				System.out.println("not null");
+				PersistenceManager pm = PMFactory.get().getPersistenceManager();//get Persitance manager instance
+				ImageBlob m = new ImageBlob(blobKey.get(i).getKeyString(), new Date()); //create image  object
+				//BlobInfo binfo = new BlobInfo(blobKey.get(i)));
+				
+				try {
+					pm.makePersistent(m);//Add Image to the datastore
+					System.out.println("Made persistent");
+				} finally {
+					System.out.println("closing");
+					//pm.close();
+					
+				}
+				//System.out.println("Uploaded a file with blobKey:" + blobKey.getKeyString());
+				System.out.println("Redirecting");
+				res.sendRedirect("index.jsp"); //Return to homepage
+			}//end if else
+		}//end param != null if
 	}//end doPost()
 }//end class

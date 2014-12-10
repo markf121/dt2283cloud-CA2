@@ -37,7 +37,7 @@
 				BlobKey bk = blobIterator.next().getBlobKey();
 				ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(bk);
 		%>		
-				<img src="<%= imageService.getServingUrl(options)%>">
+				<img src="<%= imageService.getServingUrl(options)%>"> <br>
 		<% }%>
 	
 	</body>
